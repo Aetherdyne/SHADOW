@@ -29,7 +29,7 @@
 // ---------------------------------------------------------------------------------------
 
 //Primary Controller
-String PS3MoveNavigatonPrimaryMAC = "04:76:6E:5A:9A:5B"; //If using multiple controlers, designate a primary
+String PS3MoveNavigatonPrimaryMAC = "00:1A:7D:DA:71:06"; //If using multiple controlers, designate a primary
 
 byte joystickDeadZoneRange = 10;  // For controllers that centering problems, use the lowest number with no drift
 
@@ -53,7 +53,7 @@ int maxReverseSpeed = 65;        // Move this up (above 0, but below 90) if you 
 
 #define steeringPin 4            // connect this pin to steering servo for MSE (R/C mode)
 #define drivePin 3               // connect this pin to ESC for forward/reverse drive (R/C mode)
-#define L2Throttle               // comment this to use Joystick throttle (instead of L2 throttle)
+//#define L2Throttle               // comment this to use Joystick throttle (instead of L2 throttle)
 
 // ---------------------------------------------------------------------------------------
 //                          Sound Control Settings
@@ -62,7 +62,7 @@ int maxReverseSpeed = 65;        // Move this up (above 0, but below 90) if you 
 #define MP3TxPin 2               // connect this pin to the MP3 Trigger
 #define MP3RxPin 8               // This pin isn't used by the sparkfun MP3 trigger, but is used by the MDFly
 //#define Sparkfun               // Use the sparkfun MP3 Trigger
-#define MDFly                    // Use the MDFly MP3 Player
+//#define MDFly                    // Use the MDFly MP3 Player
 //#define RogueRMP3              // Use the Rogue RMP3 Player
 
 
