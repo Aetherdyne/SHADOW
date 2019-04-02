@@ -28,8 +28,16 @@
 //                          User Settings
 // ---------------------------------------------------------------------------------------
 
-//Primary Controller
-String PS3MoveNavigatonPrimaryMAC = "00:1A:7D:DA:71:06"; //If using multiple controlers, designate a primary
+//If using multiple controlers, designate a primary
+//String PS3MoveNavigatonPrimaryMAC = "04:76:6E:98:FE:17";  // Artoo Blue
+//String PS3MoveNavigatonPrimaryMAC = "00:06:F7:61:B5:3A";  // Threepio Gold
+//String PS3MoveNavigatonPrimaryMAC = "04:76:6E:E8:77:AD";  // BB-Orange
+//String PS3MoveNavigatonPrimaryMAC = "04:76:6E:42:9E:AC";  // BB-White
+//String PS3MoveNavigatonPrimaryMAC = "00:06:F5:3A:92:02";  // Treadwell-Turquoise
+//String PS3MoveNavigatonPrimaryMAC = "00:06:F5:AD:71:6B";  // Treadwell-Silver
+String PS3MoveNavigatonPrimaryMAC = "00:06:F5:55:32:19";  // Hans Pants Red
+//String PS3MoveNavigatonPrimaryMAC = "00:06:F7:C6:C3:2F";  // Green
+//String PS3MoveNavigatonPrimaryMAC = "00:07:04:B5:D7:9D";  // R3-BOO17 Glow-in-the-Dark
 
 byte joystickDeadZoneRange = 10;  // For controllers that centering problems, use the lowest number with no drift
 
