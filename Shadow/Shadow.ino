@@ -72,6 +72,7 @@ int maxReverseSpeed = 65;        // Move this up (above 0, but below 90) if you 
 //#define Sparkfun               // Use the sparkfun MP3 Trigger
 //#define MDFly                    // Use the MDFly MP3 Player
 //#define RogueRMP3              // Use the Rogue RMP3 Player
+//#define SOUND_CATALEX               // Use the Catalex MP3 player
 
 
 // ---------------------------------------------------------------------------------------
@@ -99,6 +100,12 @@ MP3Trigger MP3;
 #ifdef MDFly
 #include <serMP3.h>
 serMP3 MP3(MP3TxPin, MP3RxPin);
+#endif
+
+#if defined(SOUND_CATALEX)
+  #include <SoftwareSerial.h>
+  #include <Catalex.h>
+  Catalex catalex;
 #endif
 
 // ---------------------------------------------------------------------------------------
@@ -171,20 +178,18 @@ void setup()
   MP3.stop();
   MP3.setVolume(vol);
   Serial.print(F("\r\nRogue rMP3 Initialized"));
-#endif
-
-
-#ifdef Sparkfun
+#elif defined(Sparkfun)
   //Setup for SoftwareSerial/MP3 Trigger
   MP3.setup(&swSerial);
   swSerial.begin(MP3Trigger::serialRate());
   MP3.setVolume(vol);
   Serial.print(F("\r\nSparkfun MP3 Trigger Initialized"));
-#endif
-
-#ifdef MDFly
+#elif defined(MDFly)
   MP3.begin(vol);
   Serial.print(F("\r\nMDFly MP3 Initialized"));
+#elif defined(SOUND_CATALEX)
+  catalex.setup(&swSerial,9600);
+  Serial.print(F("\r\nCatalex MP3 Initialized"));
 #endif
 
   Serial.print(F("\r\nMSE Drive Running"));
@@ -550,6 +555,10 @@ void processSoundCommand(char soundCommand)
         MP3.setVolume(vol);
 #endif
 
+#ifdef SOUND_CATALEX
+    vol = catalex.volumeDown();
+#endif
+
       }
       break;
     case '+':
@@ -582,6 +591,13 @@ void processSoundCommand(char soundCommand)
         }
 #endif
 
+#ifdef SOUND_CATALEX
+    if (vol < 30)
+    {
+      vol = catalex.volumeUp();
+    }
+#endif
+
         break;
 
       case '1':
@@ -603,6 +619,9 @@ void processSoundCommand(char soundCommand)
         MP3.playFile("/MSE01.mp3");
 #endif
 
+#ifdef SOUND_CATALEX
+    catalex.play(0x0101);
+#endif
 
         break;
       case '2':
@@ -622,6 +641,10 @@ void processSoundCommand(char soundCommand)
 
 #ifdef Sparkfun
         MP3.trigger(2);
+#endif
+
+#ifdef SOUND_CATALEX
+    catalex.play(0x0102);
 #endif
 
         break;
@@ -644,6 +667,10 @@ void processSoundCommand(char soundCommand)
         MP3.trigger(3);
 #endif
 
+#ifdef SOUND_CATALEX
+    catalex.play(0x0103);
+#endif
+
         break;
         case '4':
 #ifdef SHADOW_DEBUG
@@ -662,6 +689,10 @@ void processSoundCommand(char soundCommand)
 
 #ifdef Sparkfun
         MP3.trigger(4);
+#endif
+
+#ifdef SOUND_CATALEX
+    catalex.play(0x0201);
 #endif
 
         break;
@@ -684,6 +715,10 @@ void processSoundCommand(char soundCommand)
         MP3.trigger(5);
 #endif
 
+#ifdef SOUND_CATALEX
+    catalex.play(0x0104);
+#endif
+
         break;
       case '6':
 #ifdef SHADOW_DEBUG
@@ -702,6 +737,10 @@ void processSoundCommand(char soundCommand)
 
 #ifdef Sparkfun
         MP3.trigger(6);
+#endif
+
+#ifdef SOUND_CATALEX
+    catalex.play(0x0105);
 #endif
 
         break;
@@ -724,6 +763,10 @@ void processSoundCommand(char soundCommand)
         MP3.trigger(7);
 #endif
 
+#ifdef SOUND_CATALEX
+    catalex.play(0x0106);
+#endif
+
         break;
       case '8':
 #ifdef SHADOW_DEBUG
@@ -742,6 +785,10 @@ void processSoundCommand(char soundCommand)
 
 #ifdef Sparkfun
         MP3.trigger(15);
+#endif
+
+#ifdef SOUND_CATALEX
+    catalex.play(0x0202);
 #endif
 
         break;
@@ -764,6 +811,10 @@ void processSoundCommand(char soundCommand)
         MP3.trigger(18);
 #endif
 
+#ifdef SOUND_CATALEX
+    catalex.play(0x0203);
+#endif
+
         break;
       case '0':
 #ifdef SHADOW_DEBUG
@@ -782,6 +833,10 @@ void processSoundCommand(char soundCommand)
 
 #ifdef Sparkfun
         MP3.trigger(19);
+#endif
+
+#ifdef SOUND_CATALEX
+    catalex.play(0x0204);
 #endif
 
         break;
@@ -804,6 +859,10 @@ void processSoundCommand(char soundCommand)
         MP3.trigger(20);
 #endif
 
+#ifdef SOUND_CATALEX
+    catalex.play(0x0205);
+#endif
+
         break;
       case 'B':
 #ifdef SHADOW_DEBUG
@@ -822,6 +881,10 @@ void processSoundCommand(char soundCommand)
 
 #ifdef Sparkfun
         MP3.trigger(21);
+#endif
+
+#ifdef SOUND_CATALEX
+    catalex.play(0x0206);
 #endif
 
         break;
@@ -844,6 +907,10 @@ void processSoundCommand(char soundCommand)
         MP3.trigger(22);
 #endif
 
+#ifdef SOUND_CATALEX
+    catalex.play(0x0207);
+#endif
+
         break;
       case 'D':
 #ifdef SHADOW_DEBUG
@@ -862,6 +929,10 @@ void processSoundCommand(char soundCommand)
 
 #ifdef Sparkfun
         MP3.trigger(23);
+#endif
+
+#ifdef SOUND_CATALEX
+    catalex.play(0x0208);
 #endif
 
         break;
@@ -884,6 +955,10 @@ void processSoundCommand(char soundCommand)
         MP3.trigger(23);
 #endif
 
+#ifdef SOUND_CATALEX
+    catalex.play(0x0209);
+#endif
+
         break;
       case 'F':
 #ifdef SHADOW_DEBUG
@@ -902,6 +977,10 @@ void processSoundCommand(char soundCommand)
 
 #ifdef Sparkfun
         MP3.trigger(23);
+#endif
+
+#ifdef SOUND_CATALEX
+    catalex.play(0x020a);
 #endif
 
         break;
@@ -924,6 +1003,10 @@ void processSoundCommand(char soundCommand)
         MP3.trigger(random(1, 15));
 #endif
 
+#ifdef SOUND_CATALEX
+    catalex.play( random(0x0101, 0x0106) );
+#endif
+
         break;
       default:
 #ifdef SHADOW_DEBUG
@@ -943,6 +1026,10 @@ void processSoundCommand(char soundCommand)
 
 #ifdef Sparkfun
         MP3.trigger(60);
+#endif
+
+#ifdef SOUND_CATALEX
+    catalex.play(0x0108);
 #endif
       }
   }
