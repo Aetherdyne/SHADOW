@@ -68,7 +68,7 @@ int maxReverseSpeed = 65;        // Move this up (above 0, but below 90) if you 
 // ---------------------------------------------------------------------------------------
 
 #define MP3TxPin 2               // connect this pin to the MP3 Trigger
-#define MP3RxPin 8               // This pin isn't used by the sparkfun MP3 trigger, but is used by the MDFly
+#define MP3RxPin 8               // This pin isn't used by the sparkfun MP3 trigger, but is used by the MDFly and Catalex
 //#define Sparkfun               // Use the sparkfun MP3 Trigger
 //#define MDFly                    // Use the MDFly MP3 Player
 //#define RogueRMP3              // Use the Rogue RMP3 Player
@@ -83,28 +83,22 @@ int maxReverseSpeed = 65;        // Move this up (above 0, but below 90) if you 
 
 
 #ifdef RogueRMP3
-#include <RogueMP3.h>
-#include <SoftwareSerial.h>
-SoftwareSerial rmp3_s = SoftwareSerial(MP3TxPin, MP3RxPin);
-RogueMP3 MP3(rmp3_s);
-#endif
-
-
-#ifdef Sparkfun
-#include <MP3Trigger.h>
-#include <SoftwareSerial.h>
-SoftwareSerial swSerial = SoftwareSerial(MP3RxPin, MP3TxPin);
-MP3Trigger MP3;
-#endif
-
-#ifdef MDFly
-#include <serMP3.h>
-serMP3 MP3(MP3TxPin, MP3RxPin);
-#endif
-
-#if defined(SOUND_CATALEX)
+  #include <RogueMP3.h>
+  #include <SoftwareSerial.h>
+  SoftwareSerial rmp3_s = SoftwareSerial(MP3TxPin, MP3RxPin);
+  RogueMP3 MP3(rmp3_s);
+#elif defined(MDFly)
+  #include <serMP3.h>
+  serMP3 MP3(MP3TxPin, MP3RxPin);
+#elif defined(Sparkfun)
+  #include <MP3Trigger.h>
+  #include <SoftwareSerial.h>
+  SoftwareSerial swSerial = SoftwareSerial(MP3RxPin, MP3TxPin);
+  MP3Trigger MP3;
+#elif defined(SOUND_CATALEX)
   #include <SoftwareSerial.h>
   #include <Catalex.h>
+  SoftwareSerial swSerial = SoftwareSerial(MP3RxPin, MP3TxPin);
   Catalex catalex;
 #endif
 
@@ -537,501 +531,377 @@ void processSoundCommand(char soundCommand)
 #endif
       if (vol > 0)
       {
-
-#ifdef RogueRMP3
-        vol = vol-10;
-        if (vol < 0 ) { vol = 0; }
-        MP3.setVolume(vol);
-#endif
-
-#ifdef MDFly
-        vol--;
-        MP3.setVol(vol);
-#endif
-
-#ifdef Sparkfun
-        vol = vol-5;
-        if (vol < 0 ) { vol = 0 ;}
-        MP3.setVolume(vol);
-#endif
-
-#ifdef SOUND_CATALEX
-    vol = catalex.volumeDown();
-#endif
-
+        #ifdef RogueRMP3
+                vol = vol-10;
+                if (vol < 0 ) { vol = 0; }
+                MP3.setVolume(vol);
+        #elif defined(MDFly)
+                vol--;
+                MP3.setVol(vol);
+        #elif defined(Sparkfun)
+                vol = vol-5;
+                if (vol < 0 ) { vol = 0 ;}
+                MP3.setVolume(vol);
+        #elif defined(SOUND_CATALEX)
+            vol = catalex.volumeDown();
+        #endif
       }
       break;
     case '+':
-#ifdef SHADOW_DEBUG
-      output += "Volume Up\r\n";
-#endif
+        #ifdef SHADOW_DEBUG
+              output += "Volume Up\r\n";
+        #endif
 
-#ifdef RogueRMP3
-        if (vol < 255) {
-          vol = vol+10;
-          if (vol > 255 ) { vol = 255 ;}
-          MP3.setVolume(vol);
-        }
-#endif
+        #ifdef RogueRMP3
+                if (vol < 255) {
+                  vol = vol+10;
+                  if (vol > 255 ) { vol = 255 ;}
+                  MP3.setVolume(vol);
+                }
+        #elif defined(MDFly)
+              // The TDB380 and 381 use a 0-31 vol range
+              if (vol < 31) {
+                  vol++;
+                  MP3.setVol(vol);
+              }
+        #elif defined(Sparkfun)
+                // The MP3Trigger use a 0-255 vol range
+                if (vol < 255) {
+                  vol = vol+5;
+                  if (vol > 255 ) { vol = 255 };
+                  MP3.setVolume(vol);
+                }
+        #elif defined(SOUND_CATALEX)
+            if (vol < 30)
+            {
+              vol = catalex.volumeUp();
+            }
+        #endif
 
-#ifdef MDFly
-      // The TDB380 and 381 use a 0-31 vol range
-      if (vol < 31) {
-          vol++;
-          MP3.setVol(vol);
-      }
-#endif
+        break;
 
-#ifdef Sparkfun
-        // The MP3Trigger use a 0-255 vol range
-        if (vol < 255) {
-          vol = vol+5;
-          if (vol > 255 ) { vol = 255 };
-          MP3.setVolume(vol);
-        }
-#endif
+    case '1':
+      #ifdef SHADOW_DEBUG
+              output += "Sound Button ";
+              output += soundCommand;
+              output += " - Play Scream\r\n";
+      #endif
 
-#ifdef SOUND_CATALEX
-    if (vol < 30)
-    {
-      vol = catalex.volumeUp();
+      #ifdef RogueRMP3
+              MP3.playFile("/MSE01.mp3");
+      #elif defined(MDFly)
+              MP3.play(1);
+      #elif defined(Sparkfun)
+              MP3.trigger(1);
+      #elif defined(SOUND_CATALEX)
+          catalex.play(0x0101);
+      #endif
+
+      break;
+    case '2':
+      #ifdef SHADOW_DEBUG
+              output += "Sound Button ";
+              output += soundCommand;
+              output += " - Play Doo Doo.\r\n";
+      #endif
+
+      #ifdef RogueRMP3
+              MP3.playFile("/MSE02.mp3");
+      #elif defined(MDFly)
+               MP3.play(2);
+      #elif defined(Sparkfun)
+              MP3.trigger(2);
+      #elif defined(SOUND_CATALEX)
+          catalex.play(0x0102);
+      #endif
+
+      break;
+    case '3':
+      #ifdef SHADOW_DEBUG
+              output += "Sound Button ";
+              output += soundCommand;
+              output += " - Play Scramble\r\n";
+      #endif
+
+      #ifdef RogueRMP3
+              MP3.playFile("/MSE03.mp3");
+      #elif defined(MDFly)
+               MP3.play(3);
+      #elif defined(Sparkfun)
+              MP3.trigger(3);
+      #elif defined(SOUND_CATALEX)
+          catalex.play(0x0103);
+      #endif
+
+      break;
+    case '4':
+      #ifdef SHADOW_DEBUG
+              output += "Sound Button ";
+              output += soundCommand;
+              output += " - Play Scramble\r\n";
+      #endif
+
+      #ifdef RogueRMP3
+              MP3.playFile("/Mouse Droid Song.mp3");
+      #elif defined(MDFly)
+               MP3.play(4);
+      #elif defined(Sparkfun)
+              MP3.trigger(4);
+      #elif defined(SOUND_CATALEX)
+          catalex.play(0x0201);
+      #endif
+
+      break;
+    case '5':
+      #ifdef SHADOW_DEBUG
+              output += "Sound Button ";
+              output += soundCommand;
+              output += " - Play Mouse Sound.\r\n";
+      #endif
+
+      #ifdef RogueRMP3
+              MP3.playFile("/MSE04.mp3");
+      #elif defined(MDFly)
+               MP3.play(5);
+      #elif defined(Sparkfun)
+              MP3.trigger(5);
+      #elif defined(SOUND_CATALEX)
+          catalex.play(0x0104);
+      #endif
+
+      break;
+    case '6':
+      #ifdef SHADOW_DEBUG
+              output += "Sound Button ";
+              output += soundCommand;
+              output += " - Play Crank Sound.\r\n";
+      #endif
+
+      #ifdef RogueRMP3
+              MP3.playFile("/MSE05.mp3");
+      #elif defined(MDFly)
+               MP3.play(6);
+      #elif defined(Sparkfun)
+              MP3.trigger(6);
+      #elif defined(SOUND_CATALEX)
+          catalex.play(0x0105);
+      #endif
+
+      break;
+    case '7':
+      #ifdef SHADOW_DEBUG
+              output += "Sound Button ";
+              output += soundCommand;
+              output += " - Play Splat.\r\n";
+      #endif
+
+      #ifdef RogueRMP3
+              MP3.playFile("/MSE06.mp3");
+      #elif defined(MDFly)
+               MP3.play(7);
+      #elif defined(Sparkfun)
+              MP3.trigger(7);
+      #elif defined(SOUND_CATALEX)
+          catalex.play(0x0106);
+      #endif
+
+      break;
+    case '8':
+      #ifdef SHADOW_DEBUG
+              output += "Sound Button ";
+              output += soundCommand;
+              output += " - Play Electrical.\r\n";
+      #endif
+
+      #ifdef RogueRMP3
+              MP3.playFile("/March.mp3");
+      #elif defined(MDFly)
+               MP3.play(8);
+      #elif defined(Sparkfun)
+              MP3.trigger(15);
+      #elif defined(SOUND_CATALEX)
+          catalex.play(0x0202);
+      #endif
+
+      break;
+    case '9':
+      #ifdef SHADOW_DEBUG
+              output += "Sound Button ";
+              output += soundCommand;
+              output += " - Play March L1+L.\r\n";
+      #endif
+
+      #ifdef RogueRMP3
+              MP3.playFile("/MSE10.mp3");
+      #elif defined(MDFly)
+               MP3.play(9);
+      #elif defined(Sparkfun)
+              MP3.trigger(18);
+      #elif defined(SOUND_CATALEX)
+          catalex.play(0x0203);
+      #endif
+
+      break;
+    case '0':
+      #ifdef SHADOW_DEBUG
+              output += "Sound Button ";
+              output += soundCommand;
+              output += " - Play Cantina L1+R\r\n";
+      #endif
+
+      #ifdef RogueRMP3
+              MP3.playFile("/MSE11.mp3");
+      #elif defined(MDFly)
+               MP3.play(10);
+      #elif defined(Sparkfun)
+              MP3.trigger(19);
+      #elif defined(SOUND_CATALEX)
+          catalex.play(0x0204);
+      #endif
+
+      break;
+    case 'A':
+      #ifdef SHADOW_DEBUG
+              output += "Sound Button ";
+              output += soundCommand;
+              output += " - Play Jabba Flow L1+O\r\n";
+      #endif
+
+      #ifdef RogueRMP3
+              MP3.playFile("/Cantina.mp3");
+      #elif defined(MDFly)
+               MP3.play(11);
+      #elif defined(Sparkfun)
+              MP3.trigger(20);
+      #elif defined(SOUND_CATALEX)
+          catalex.play(0x0205);
+      #endif
+
+      break;
+    case 'B':
+      #ifdef SHADOW_DEBUG
+              output += "Sound Button ";
+              output += soundCommand;
+              output += " - Play SWG Music L1+X\r\n";
+      #endif
+
+      #ifdef RogueRMP3
+              MP3.playFile("/March.mp3");
+      #elif defined(MDFly)
+               MP3.play(12);
+      #elif defined(Sparkfun)
+              MP3.trigger(21);
+      #elif defined(SOUND_CATALEX)
+          catalex.play(0x0206);
+      #endif
+
+      break;
+    case 'C':
+      #ifdef SHADOW_DEBUG
+              output += "Sound Button ";
+              output += soundCommand;
+              output += " - Play MSE Loop L1+L3\r\n";
+      #endif
+
+      #ifdef RogueRMP3
+              MP3.playFile("/StarWars.mp3");
+      #elif defined(MDFly)
+              MP3.play(13);
+      #elif defined(Sparkfun)
+              MP3.trigger(22);
+      #elif defined(SOUND_CATALEX)
+          catalex.play(0x0207);
+      #endif
+
+      break;
+    case 'D':
+      #ifdef SHADOW_DEBUG
+              output += "Sound Button ";
+              output += soundCommand;
+              output += " - Play Meco StarWars L1+PS\r\n";
+      #endif
+
+      #ifdef RogueRMP3
+              MP3.playFile("/Mouse Droid Song.mp3");
+      #elif defined(MDFly)
+              MP3.play(14);
+      #elif defined(Sparkfun)
+              MP3.trigger(23);
+      #elif defined(SOUND_CATALEX)
+          catalex.play(0x0208);
+      #endif
+
+      break;
+    case 'E':
+      #ifdef SHADOW_DEBUG
+              output += "Sound Button ";
+              output += soundCommand;
+              output += " - Play Meco StarWars L1+PS\r\n";
+      #endif
+
+      #ifdef RogueRMP3
+              MP3.playFile("/meco-sw-disco.mp3");
+      #elif defined(MDFly)
+              MP3.play(15);
+      #elif defined(Sparkfun)
+              MP3.trigger(23);
+      #elif defined(SOUND_CATALEX)
+          catalex.play(0x0209);
+      #endif
+
+      break;
+    case 'F':
+      #ifdef SHADOW_DEBUG
+              output += "Sound Button ";
+              output += soundCommand;
+              output += " - Play Meco StarWars L1+PS\r\n";
+      #endif
+
+      #ifdef RogueRMP3
+              MP3.playFile("/the saga begins - wierd al yankovic.mp3");
+      #elif defined(MDFly)
+              MP3.play(16);
+      #elif defined(Sparkfun)
+              MP3.trigger(23);
+      #elif defined(SOUND_CATALEX)
+          catalex.play(0x020a);
+      #endif
+
+      break;
+    case 'R':
+      #ifdef SHADOW_DEBUG
+              output += "Sound Button ";
+              output += soundCommand;
+              output += " - Play Random Mouse Sound. L3\r\n";
+      #endif
+
+      #ifdef RogueRMP3
+              MP3.playFile("/WALLE.mp3");
+      #elif defined(MDFly)
+              MP3.play(random(1, 15));
+      #elif defined(Sparkfun)
+              MP3.trigger(random(1, 15));
+      #elif defined(SOUND_CATALEX)
+          catalex.play( random(0x0101, 0x0106) );
+      #endif
+
+      break;
+    default:
+      #ifdef SHADOW_DEBUG
+              output += "Invalid Sound Command\r\n";
+      #endif     
+
+      #ifdef RogueRMP3
+              //Add a valid track here?
+              MP3.playFile("/WALLE.mp3");
+      #elif defined(MDFly)
+              MP3.play(60);
+      #elif defined(Sparkfun)
+              MP3.trigger(60);
+      #elif defined(SOUND_CATALEX)
+          catalex.play(0x0108);
+      #endif
     }
-#endif
-
-        break;
-
-      case '1':
-#ifdef SHADOW_DEBUG
-        output += "Sound Button ";
-        output += soundCommand;
-        output += " - Play Scream\r\n";
-#endif
-
-#ifdef MDFly
-        MP3.play(1);
-#endif
-
-#ifdef Sparkfun
-        MP3.trigger(1);
-#endif
-
-#ifdef RogueRMP3
-        MP3.playFile("/MSE01.mp3");
-#endif
-
-#ifdef SOUND_CATALEX
-    catalex.play(0x0101);
-#endif
-
-        break;
-      case '2':
-#ifdef SHADOW_DEBUG
-        output += "Sound Button ";
-        output += soundCommand;
-        output += " - Play Doo Doo.\r\n";
-#endif
-
-#ifdef RogueRMP3
-        MP3.playFile("/MSE02.mp3");
-#endif
-
-#ifdef MDFly
-        MP3.play(2);
-#endif
-
-#ifdef Sparkfun
-        MP3.trigger(2);
-#endif
-
-#ifdef SOUND_CATALEX
-    catalex.play(0x0102);
-#endif
-
-        break;
-      case '3':
-#ifdef SHADOW_DEBUG
-        output += "Sound Button ";
-        output += soundCommand;
-        output += " - Play Scramble\r\n";
-#endif
-
-#ifdef RogueRMP3
-        MP3.playFile("/MSE03.mp3");
-#endif
-
-#ifdef MDFly
-        MP3.play(3);
-#endif
-
-#ifdef Sparkfun
-        MP3.trigger(3);
-#endif
-
-#ifdef SOUND_CATALEX
-    catalex.play(0x0103);
-#endif
-
-        break;
-        case '4':
-#ifdef SHADOW_DEBUG
-        output += "Sound Button ";
-        output += soundCommand;
-        output += " - Play Scramble\r\n";
-#endif
-
-#ifdef RogueRMP3
-        MP3.playFile("/Mouse Droid Song.mp3");
-#endif
-
-#ifdef MDFly
-        MP3.play(4);
-#endif
-
-#ifdef Sparkfun
-        MP3.trigger(4);
-#endif
-
-#ifdef SOUND_CATALEX
-    catalex.play(0x0201);
-#endif
-
-        break;
-      case '5':
-#ifdef SHADOW_DEBUG
-        output += "Sound Button ";
-        output += soundCommand;
-        output += " - Play Mouse Sound.\r\n";
-#endif
-
-#ifdef RogueRMP3
-        MP3.playFile("/MSE04.mp3");
-#endif
-
-#ifdef MDFly
-        MP3.play(5);
-#endif
-
-#ifdef Sparkfun
-        MP3.trigger(5);
-#endif
-
-#ifdef SOUND_CATALEX
-    catalex.play(0x0104);
-#endif
-
-        break;
-      case '6':
-#ifdef SHADOW_DEBUG
-        output += "Sound Button ";
-        output += soundCommand;
-        output += " - Play Crank Sound.\r\n";
-#endif
-
-#ifdef RogueRMP3
-        MP3.playFile("/MSE05.mp3");
-#endif
-
-#ifdef MDFly
-        MP3.play(6);
-#endif
-
-#ifdef Sparkfun
-        MP3.trigger(6);
-#endif
-
-#ifdef SOUND_CATALEX
-    catalex.play(0x0105);
-#endif
-
-        break;
-      case '7':
-#ifdef SHADOW_DEBUG
-        output += "Sound Button ";
-        output += soundCommand;
-        output += " - Play Splat.\r\n";
-#endif
-
-#ifdef RogueRMP3
-        MP3.playFile("/MSE06.mp3");
-#endif
-
-#ifdef MDFly
-        MP3.play(7);
-#endif
-
-#ifdef Sparkfun
-        MP3.trigger(7);
-#endif
-
-#ifdef SOUND_CATALEX
-    catalex.play(0x0106);
-#endif
-
-        break;
-      case '8':
-#ifdef SHADOW_DEBUG
-        output += "Sound Button ";
-        output += soundCommand;
-        output += " - Play Electrical.\r\n";
-#endif
-
-#ifdef RogueRMP3
-        MP3.playFile("/March.mp3");
-#endif
-
-#ifdef MDFly
-        MP3.play(8);
-#endif
-
-#ifdef Sparkfun
-        MP3.trigger(15);
-#endif
-
-#ifdef SOUND_CATALEX
-    catalex.play(0x0202);
-#endif
-
-        break;
-      case '9':
-#ifdef SHADOW_DEBUG
-        output += "Sound Button ";
-        output += soundCommand;
-        output += " - Play March L1+L.\r\n";
-#endif
-
-#ifdef RogueRMP3
-        MP3.playFile("/MSE10.mp3");
-#endif
-
-#ifdef MDFly
-        MP3.play(9);
-#endif
-
-#ifdef Sparkfun
-        MP3.trigger(18);
-#endif
-
-#ifdef SOUND_CATALEX
-    catalex.play(0x0203);
-#endif
-
-        break;
-      case '0':
-#ifdef SHADOW_DEBUG
-        output += "Sound Button ";
-        output += soundCommand;
-        output += " - Play Cantina L1+R\r\n";
-#endif
-
-#ifdef RogueRMP3
-        MP3.playFile("/MSE11.mp3");
-#endif
-
-#ifdef MDFly
-        MP3.play(10);
-#endif
-
-#ifdef Sparkfun
-        MP3.trigger(19);
-#endif
-
-#ifdef SOUND_CATALEX
-    catalex.play(0x0204);
-#endif
-
-        break;
-      case 'A':
-#ifdef SHADOW_DEBUG
-        output += "Sound Button ";
-        output += soundCommand;
-        output += " - Play Jabba Flow L1+O\r\n";
-#endif
-
-#ifdef RogueRMP3
-        MP3.playFile("/Cantina.mp3");
-#endif
-
-#ifdef MDFly
-        MP3.play(11);
-#endif
-
-#ifdef Sparkfun
-        MP3.trigger(20);
-#endif
-
-#ifdef SOUND_CATALEX
-    catalex.play(0x0205);
-#endif
-
-        break;
-      case 'B':
-#ifdef SHADOW_DEBUG
-        output += "Sound Button ";
-        output += soundCommand;
-        output += " - Play SWG Music L1+X\r\n";
-#endif
-
-#ifdef RogueRMP3
-        MP3.playFile("/March.mp3");
-#endif
-
-#ifdef MDFly
-        MP3.play(12);
-#endif
-
-#ifdef Sparkfun
-        MP3.trigger(21);
-#endif
-
-#ifdef SOUND_CATALEX
-    catalex.play(0x0206);
-#endif
-
-        break;
-      case 'C':
-#ifdef SHADOW_DEBUG
-        output += "Sound Button ";
-        output += soundCommand;
-        output += " - Play MSE Loop L1+L3\r\n";
-#endif
-
-#ifdef RogueRMP3
-        MP3.playFile("/StarWars.mp3");
-#endif
-
-#ifdef MDFly
-        MP3.play(13);
-#endif
-
-#ifdef Sparkfun
-        MP3.trigger(22);
-#endif
-
-#ifdef SOUND_CATALEX
-    catalex.play(0x0207);
-#endif
-
-        break;
-      case 'D':
-#ifdef SHADOW_DEBUG
-        output += "Sound Button ";
-        output += soundCommand;
-        output += " - Play Meco StarWars L1+PS\r\n";
-#endif
-
-#ifdef RogueRMP3
-        MP3.playFile("/Mouse Droid Song.mp3");
-#endif
-
-#ifdef MDFly
-        MP3.play(14);
-#endif
-
-#ifdef Sparkfun
-        MP3.trigger(23);
-#endif
-
-#ifdef SOUND_CATALEX
-    catalex.play(0x0208);
-#endif
-
-        break;
-      case 'E':
-#ifdef SHADOW_DEBUG
-        output += "Sound Button ";
-        output += soundCommand;
-        output += " - Play Meco StarWars L1+PS\r\n";
-#endif
-
-#ifdef RogueRMP3
-        MP3.playFile("/meco-sw-disco.mp3");
-#endif
-
-#ifdef MDFly
-        MP3.play(15);
-#endif
-
-#ifdef Sparkfun
-        MP3.trigger(23);
-#endif
-
-#ifdef SOUND_CATALEX
-    catalex.play(0x0209);
-#endif
-
-        break;
-      case 'F':
-#ifdef SHADOW_DEBUG
-        output += "Sound Button ";
-        output += soundCommand;
-        output += " - Play Meco StarWars L1+PS\r\n";
-#endif
-
-#ifdef RogueRMP3
-        MP3.playFile("/the saga begins - wierd al yankovic.mp3");
-#endif
-
-#ifdef MDFly
-        MP3.play(16);
-#endif
-
-#ifdef Sparkfun
-        MP3.trigger(23);
-#endif
-
-#ifdef SOUND_CATALEX
-    catalex.play(0x020a);
-#endif
-
-        break;
-      case 'R':
-#ifdef SHADOW_DEBUG
-        output += "Sound Button ";
-        output += soundCommand;
-        output += " - Play Random Mouse Sound. L3\r\n";
-#endif
-
-#ifdef RogueRMP3
-        MP3.playFile("/WALLE.mp3");
-#endif
-
-#ifdef MDFly
-        MP3.play(random(1, 15));
-#endif
-
-#ifdef Sparkfun
-        MP3.trigger(random(1, 15));
-#endif
-
-#ifdef SOUND_CATALEX
-    catalex.play( random(0x0101, 0x0106) );
-#endif
-
-        break;
-      default:
-#ifdef SHADOW_DEBUG
-        output += "Invalid Sound Command\r\n";
-#endif
-
-        output += "Invalid Sound Command\r\n";
-
-#ifdef RogueRMP3
-        //Add a valid track here?
-        MP3.playFile("/WALLE.mp3");
-#endif
-
-#ifdef MDFly
-        MP3.play(60);
-#endif
-
-#ifdef Sparkfun
-        MP3.trigger(60);
-#endif
-
-#ifdef SOUND_CATALEX
-    catalex.play(0x0108);
-#endif
-      }
   }
 
   void ps3soundControl(PS3BT* myPS3 = PS3Nav, int controllerNumber = 1)
