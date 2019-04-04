@@ -72,7 +72,7 @@ int maxReverseSpeed = 65;        // Move this up (above 0, but below 90) if you 
 //#define Sparkfun               // Use the sparkfun MP3 Trigger
 //#define MDFly                    // Use the MDFly MP3 Player
 //#define RogueRMP3              // Use the Rogue RMP3 Player
-//#define SOUND_CATALEX               // Use the Catalex MP3 player
+#define SOUND_CATALEX               // Use the Catalex MP3 player
 
 
 // ---------------------------------------------------------------------------------------
@@ -594,7 +594,7 @@ void processSoundCommand(char soundCommand)
       #elif defined(Sparkfun)
               MP3.trigger(1);
       #elif defined(SOUND_CATALEX)
-          catalex.play(0x0101);
+          catalex.play(0x0105);
       #endif
 
       break;
@@ -648,7 +648,7 @@ void processSoundCommand(char soundCommand)
       #elif defined(Sparkfun)
               MP3.trigger(4);
       #elif defined(SOUND_CATALEX)
-          catalex.play(0x0201);
+          catalex.play(0x0204);
       #endif
 
       break;
@@ -656,7 +656,7 @@ void processSoundCommand(char soundCommand)
       #ifdef SHADOW_DEBUG
               output += "Sound Button ";
               output += soundCommand;
-              output += " - Play Mouse Sound.\r\n";
+              output += " - Play Scream.\r\n";
       #endif
 
       #ifdef RogueRMP3
@@ -666,7 +666,7 @@ void processSoundCommand(char soundCommand)
       #elif defined(Sparkfun)
               MP3.trigger(5);
       #elif defined(SOUND_CATALEX)
-          catalex.play(0x0104);
+          catalex.play(0x0106);
       #endif
 
       break;
@@ -674,7 +674,7 @@ void processSoundCommand(char soundCommand)
       #ifdef SHADOW_DEBUG
               output += "Sound Button ";
               output += soundCommand;
-              output += " - Play Crank Sound.\r\n";
+              output += " - Play March.\r\n";
       #endif
 
       #ifdef RogueRMP3
@@ -684,7 +684,7 @@ void processSoundCommand(char soundCommand)
       #elif defined(Sparkfun)
               MP3.trigger(6);
       #elif defined(SOUND_CATALEX)
-          catalex.play(0x0105);
+          catalex.play(0x0202);
       #endif
 
       break;
@@ -846,7 +846,7 @@ void processSoundCommand(char soundCommand)
       #elif defined(Sparkfun)
               MP3.trigger(23);
       #elif defined(SOUND_CATALEX)
-          catalex.play(0x0209);
+          catalex.play(0x0205);
       #endif
 
       break;
@@ -882,7 +882,7 @@ void processSoundCommand(char soundCommand)
       #elif defined(Sparkfun)
               MP3.trigger(random(1, 15));
       #elif defined(SOUND_CATALEX)
-          catalex.play( random(0x0101, 0x0106) );
+          catalex.play( random(0x0101, 0x0114) );
       #endif
 
       break;
@@ -908,18 +908,18 @@ void processSoundCommand(char soundCommand)
   {
     if (!(myPS3->getButtonPress(L1) || myPS3->getButtonPress(L2) || myPS3->getButtonPress(PS))) {
       if (myPS3->getButtonClick(UP))          processSoundCommand('1');
-      else if (myPS3->getButtonClick(RIGHT))  processSoundCommand('2');
-      else if (myPS3->getButtonClick(DOWN))   processSoundCommand('3');
-      else if (myPS3->getButtonClick(LEFT))   processSoundCommand('4');
+      else if (myPS3->getButtonClick(DOWN))   processSoundCommand('2');
+      else if (myPS3->getButtonClick(LEFT))   processSoundCommand('3');
+      else if (myPS3->getButtonClick(RIGHT))  processSoundCommand('4');
       else if (myPS3->getButtonClick(CROSS))  processSoundCommand('5');
-      else if (myPS3->getButtonClick(CIRCLE)) processSoundCommand('6');
+	  else if (myPS3->getButtonClick(CIRCLE)) processSoundCommand('6');
       else if (myPS3->getButtonClick(L3))     processSoundCommand('R');
     }
     else if (myPS3->getButtonPress(L2)) {
       if (myPS3->getButtonClick(UP))          processSoundCommand('7');
-      else if (myPS3->getButtonClick(RIGHT))  processSoundCommand('8');
-      else if (myPS3->getButtonClick(DOWN))   processSoundCommand('9');
-      else if (myPS3->getButtonClick(LEFT))   processSoundCommand('0');
+      else if (myPS3->getButtonClick(DOWN))   processSoundCommand('8');
+      else if (myPS3->getButtonClick(LEFT))   processSoundCommand('9');
+      else if (myPS3->getButtonClick(RIGHT))  processSoundCommand('0');
       else if (myPS3->getButtonClick(CIRCLE)) processSoundCommand('A');
       else if (myPS3->getButtonClick(CROSS))  processSoundCommand('B');
       else if (myPS3->getButtonClick(L3))     processSoundCommand('R');
@@ -932,7 +932,6 @@ void processSoundCommand(char soundCommand)
       else if (myPS3->getButtonClick(CIRCLE)) processSoundCommand('E');
       else if (myPS3->getButtonClick(CROSS))  processSoundCommand('F');
       else if (myPS3->getButtonClick(L3))     processSoundCommand('R');
-      else if (myPS3->getButtonClick(PS))     processSoundCommand('D');
     }
   }
 
